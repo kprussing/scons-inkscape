@@ -48,7 +48,11 @@ would you want to do that?
 Usage
 -----
 
-This tool provides the ``Inkscape`` builder.  Further, it provides
+This tool provides the ``Inkscape`` builder.  The ``Inkscape`` builder
+assumes the user knows the appropriate command flags for Inkscape_ and
+the correct order.  The flags are set using the ``INKSCAPEFLAGS``
+environment variable.  To ease usage, the most common exports are
+predefined based on the extension conversion.  Specifically, it provides
 convenience builders for common conversions:
 
 -  ``svg2pdf``
@@ -56,5 +60,17 @@ convenience builders for common conversions:
 -  ``svg2png``
 -  ``pdf2svg``
 
-.. todo:: Describe the environment variables that control the builders.
+Each specialized builder respects the ``INKSCAPEFLAGS`` environment
+variable.  Further, each defines a ``.*FLAGS`` variable to globally set
+conversion parameters.
+
+Hacking
+-------
+
+The specialized builders follow the same basic format by calling
+Inkscape_ with default flags, passing the input file, and specifying the
+output format and file.  For this reason, the builders are generated
+from a dictionary of parameters near the center of the file.  To add
+another specialized builder, add the proper parameters to the
+``_params`` dictionary.
 
