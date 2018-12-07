@@ -114,46 +114,44 @@ def _latex_emitter(target, source, env):
 # ~~~~~~~~
 #
 
-_builder = SCons.Builder.Builder(
-        action=SCons.Action.Action("$INKSCAPECOM", "$INKSCAPECOMSTR"),
-        single_source=True
-    )
+_params = {
+        "svg2png"     : {"out"          : "--export-png",
+                         "src_suffix"   : "svg",
+                         "suffix"       : "png",
+                         "emitter"      : None},
 
-# _params = {
-        # "inkscape" : {"flags" : [""],
-                      # "src_suffix" : "",
-                      # "suffix" : "",
-                      # "emitter" : None},
+        "svg2pdf"     : {"out"          : "--export-pdf",
+                         "src_suffix"   : "svg",
+                         "suffix"       : "pdf",
+                         "emitter"      : None},
 
-        # "svg2pdf" : {"flags" : ["--export-pdf"],
-                     # "src_suffix" : "svg",
-                     # "suffix" : "pdf",
-                     # "emitter" : None},
+        "pdf2svg"     : {"out"          : "--export-plain-svg",
+                         "src_suffix"   : "pdf",
+                         "suffix"       : "svg",
+                         "emitter"      : None},
 
-        # "svg2png" : {"flags" : ["--export-png"],
-                     # "src_suffix" : "svg",
-                     # "suffix" : "png",
-                     # "emitter" : None},
+        "svg2pdf_tex" : {"out"          : "--export-latex --export-pdf",
+                         "src_suffix"   : "svg",
+                         "suffix"       : "pdf",
+                         "emitter"      : _latex_emitter},
 
-        # "pdf2svg" : {"flags" : ["--export-plain-svg"],
-                     # "src_suffix" : "pdf",
-                     # "suffix" : "svg",
-                     # "emitter" : None},
+    }
 
-        # "svg2pdf_tex" : {"flags" : ["--export-pdf", "--export-tex"],
-                         # "src_suffix" : "svg",
-                         # "suffix" : "pdf",
-                         # "emitter" : _latex_emitter}
-    # }
-
-# _builders = {}
-# for key, val in _params.items():
-    # _params[key]["COM"] = "$" + key.upper() + "COM"
-    # _params[key]["COMSTR"] =  "$" + _params[key]["COM"] + "STR"
-    # _params[key]["action"] = SCons.Action.Action(_params[key]["COM"],
-                                                 # _params[key]["COMSTR"])
-    # _builders[key] = SCons.Builder.Builder(action=_params[key]["action"],
-                                           # **val)
+_builders = {
+        "Inkscape" : SCons.Builder.Builder(
+                action=SCons.Action.Action("$INKSCAPECOM",
+                                           "$INKSCAPECOMSTR"),
+                single_source=True)
+    }
+for key, val in _params.items():
+    com = key.upper() + "COM"
+    comstr = com + "STR"
+    flags = key.upper() + "FLAGS"
+    action = SCons.Action.Action("$" + com, "$" + comstr)
+    _params[key].update( dict(com=com, comstr=comstr,
+                              action=action, flags=flags) )
+    _builders[key] = SCons.Builder.Builder(single_source=True,
+                                           **_params[key])
 
 #
 # SCons functions
@@ -164,30 +162,23 @@ def generate(env):
     """Add the builders to the :class:`SCons.Environment.Environment`
     """
     env["INKSCAPE"] = _detect(env)
-    command = " ".join(["$INKSCAPE",
-                        "--without-gui",
-                        "$INKSCAPEFLAGS",
-                        "--file", "$SOURCE",
-                        "$TARGET"])
-    env.SetDefault(# Command line flags
-                   INKSCAPEFLAGS=SCons.Util.CLVar("--without-gui"),
+    comroot = "$INKSCAPE $INKSCAPEFLAGS --file $SOURCE "
+    kwargs = dict(# Generic command line flags
+            INKSCAPEFLAGS=SCons.Util.CLVar("--without-gui"),
 
-                   # Commands
-                   INKSCAPECOM=command,
-                   INKSCAPECOMSTR="",
-        )
-    # kwargs = {}
-    # for key, val in _params.items():
-        # kwargs[val["COM"]] = " ".join(["$INKSCAPE",
-                                       # "$INKSCAPEFLAGS",
-                                       # "--without-gui",
-                                       # *val["flags"], 
-                                       # "--file", "$SOURCE",
-                                       # "$TARGET"])
-        # kwargs[val["COMSTR"]] = ""
+            # Generic command
+            INKSCAPECOM="$INKSCAPE --file $SOURCE $INKSCAPEFLAGS $TARGET",
+            INKSCAPECOMSTR=""
+            )
 
-    # env.SetDefault(**kwargs)
-    env["BUILDERS"]["Inkscape"] = _builder
+    for key, val in _params.items():
+        kwargs[val["flags"]] = ""
+        kwargs[val["comstr"]] = ""
+        kwargs[val["com"]] = " ".join([comroot, "$" + val["flags"],
+                                       val["out"], "$TARGET"])
+
+    env.SetDefault(**kwargs)
+    env["BUILDERS"].update( _builders )
 
 def exists(env):
     return _detect(env)
