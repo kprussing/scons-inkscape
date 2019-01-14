@@ -125,6 +125,11 @@ _params = {
                          "suffix"       : "pdf",
                          "emitter"      : None},
 
+        "pdf2png"     : {"out"          : "--export-png",
+                         "src_suffix"   : "pdf",
+                         "suffix"       : "png",
+                         "emitter"      : None},
+
         "pdf2svg"     : {"out"          : "--export-plain-svg",
                          "src_suffix"   : "pdf",
                          "suffix"       : "svg",
