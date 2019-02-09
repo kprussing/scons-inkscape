@@ -134,7 +134,7 @@ for s, t in itertools.product(_sources, _targets):
                             "suffix"    : t,
                             "emitter"   : None}
 
-    if t in _emitters:
+    if t in ("pdf", "eps", "ps"):
         _params[s + "2" + t + "_tex"] = {
                 "out"           : "--export-latex --export-" + t,
                 "src_suffix"   : s,
