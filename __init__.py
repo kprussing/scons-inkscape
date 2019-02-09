@@ -105,27 +105,37 @@ def _detect(env):
                                  "Could not find Inkscape executable")
 
 
-def _latex_emitter(target, source, env):
-    """The emitter for PDF + LaTeX exporting
-    """
-    target.append(str(target[0]) + "_tex")
+#
+# Emitters
+# ~~~~~~~~
+#
+def _emitter(ext, target, source, env):
+    """Define a generic emitter for the LaTeX exporting"""
+    target.append(str(target[0]) + "_" + ext)
     return target, source
+
+# Now specialize
+def _pdf_emitter(target, source, env):
+    return _emitter("pdf", target, source, env)
+
+def _eps_emitter(target, source, env):
+    return _emitter("eps", target, source, env)
+
+def _ps_emitter(target, source, env):
+    return _emitter("ps", target, source, env)
+
+_emitters = {"pdf" : _pdf_emitter,
+             "eps" : _eps_emitter,
+             "ps"  : _ps_emitter}
 
 #
 # Builders
 # ~~~~~~~~
 #
 
-# Define the specialized builder.  This is the PDF+LaTeX output.
-_params = {
-        "svg2pdf_tex" : {"out"          : "--export-latex --export-pdf",
-                         "src_suffix"   : "svg",
-                         "suffix"       : "pdf",
-                         "emitter"      : _latex_emitter},
-    }
-
 # Many of the outputs have the same format with only source and target
 # extensions changed.
+_params = {}
 _sources = ("svg", "pdf", "eps")
 _targets = ("svg", "pdf", "eps", "ps", "png", "emf", "wmf")
 for s, t in itertools.product(_sources, _targets):
@@ -137,6 +147,14 @@ for s, t in itertools.product(_sources, _targets):
                             "src_suffix": s,
                             "suffix"    : t,
                             "emitter"   : None}
+
+    if t in _emitters:
+        _params[s + "2" + t + "_tex"] = {
+                "out"           : "--export-latex --export-" + t,
+                "src_suffix"   : s,
+                "suffix"       : t,
+                "emitter"      : _emitters[t]
+            }
 
 _builders = {
         "Inkscape" : SCons.Builder.Builder(
