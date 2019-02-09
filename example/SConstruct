@@ -10,6 +10,7 @@ png1 = env.Inkscape(src + "-1.png", src + ".svg",
                     INKSCAPEFLAGS="--export-png")
 png = env.svg2png(src)
 pdf = env.svg2pdf(src)
+wmf = env.svg2wmf(src)
 pdf_tex = env.svg2pdf_tex(src + "-2.pdf", src + ".svg")
 
 png2 = env.pdf2svg(src + "-2.svg", pdf)

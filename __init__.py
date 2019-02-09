@@ -54,6 +54,8 @@ import SCons.Errors
 import SCons.Util
 import SCons.Warnings
 
+import itertools
+
 #
 # Preliminary details
 # ~~~~~~~~~~~~~~~~~~~
@@ -114,33 +116,27 @@ def _latex_emitter(target, source, env):
 # ~~~~~~~~
 #
 
+# Define the specialized builder.  This is the PDF+LaTeX output.
 _params = {
-        "svg2png"     : {"out"          : "--export-png",
-                         "src_suffix"   : "svg",
-                         "suffix"       : "png",
-                         "emitter"      : None},
-
-        "svg2pdf"     : {"out"          : "--export-pdf",
-                         "src_suffix"   : "svg",
-                         "suffix"       : "pdf",
-                         "emitter"      : None},
-
-        "pdf2png"     : {"out"          : "--export-png",
-                         "src_suffix"   : "pdf",
-                         "suffix"       : "png",
-                         "emitter"      : None},
-
-        "pdf2svg"     : {"out"          : "--export-plain-svg",
-                         "src_suffix"   : "pdf",
-                         "suffix"       : "svg",
-                         "emitter"      : None},
-
         "svg2pdf_tex" : {"out"          : "--export-latex --export-pdf",
                          "src_suffix"   : "svg",
                          "suffix"       : "pdf",
                          "emitter"      : _latex_emitter},
-
     }
+
+# Many of the outputs have the same format with only source and target
+# extensions changed.
+_sources = ("svg", "pdf", "eps")
+_targets = ("svg", "pdf", "eps", "ps", "png", "emf", "wmf")
+for s, t in itertools.product(_sources, _targets):
+    if s == t:
+        continue
+
+    plain = "plain-" if t == "svg" else ""
+    _params[s + "2" + t] = {"out"       : "--export-" + plain + t,
+                            "src_suffix": s,
+                            "suffix"    : t,
+                            "emitter"   : None}
 
 _builders = {
         "Inkscape" : SCons.Builder.Builder(
