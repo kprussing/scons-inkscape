@@ -109,24 +109,10 @@ def _detect(env):
 # Emitters
 # ~~~~~~~~
 #
-def _emitter(ext, target, source, env):
+def _latex_emitter(target, source, env):
     """Define a generic emitter for the LaTeX exporting"""
-    target.append(str(target[0]) + "_" + ext)
+    target.append(str(target[0]) + "_tex")
     return target, source
-
-# Now specialize
-def _pdf_emitter(target, source, env):
-    return _emitter("pdf", target, source, env)
-
-def _eps_emitter(target, source, env):
-    return _emitter("eps", target, source, env)
-
-def _ps_emitter(target, source, env):
-    return _emitter("ps", target, source, env)
-
-_emitters = {"pdf" : _pdf_emitter,
-             "eps" : _eps_emitter,
-             "ps"  : _ps_emitter}
 
 #
 # Builders
@@ -153,7 +139,7 @@ for s, t in itertools.product(_sources, _targets):
                 "out"           : "--export-latex --export-" + t,
                 "src_suffix"   : s,
                 "suffix"       : t,
-                "emitter"      : _emitters[t]
+                "emitter"      : _latex_emitter
             }
 
 _builders = {
