@@ -81,6 +81,9 @@ The format is based on `Keep a Changelog`_.
 Unreleased_
 ^^^^^^^^^^^
 
+0.1.0_ 2021-08-08
+^^^^^^^^^^^^^^^^^
+
 Changed
 '''''''
 
@@ -98,6 +101,7 @@ Removed
 
 -   Initial release that “worked” with Inkscape 0.92
 
-.. _Unreleased: https://github.com/kprussing/scons-inkscape/compare/v0.0.1...HEAD
+.. _Unreleased: https://github.com/kprussing/scons-inkscape/compare/v0.1.0...HEAD
+.. _0.1.0: https://github.com/kprussing/scons-inkscape/compare/v0.0.1..v0.1.0
 .. _0.0.1: https://github.com/kprussing/scons-inkscape/releases/tag/v0.0.1
 .. _Keep a Changelog: https://keepachangelog.com/en/1.0.0/
