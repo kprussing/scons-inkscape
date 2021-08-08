@@ -44,7 +44,6 @@ method.
 import SCons.Action
 import SCons.Builder
 import SCons.Errors
-import SCons.Util
 try:
     from SCons.Warnings import SConsWarning as SConsWarning
 except ImportError:
@@ -148,27 +147,17 @@ _builder = SCons.Builder.Builder(
 #
 
 def generate(env):
-    """Add the builders to the :class:`SCons.Environment.Environment`
+    """Add the builder to the :class:`SCons.Environment.Environment`
     """
     env["INKSCAPE"] = _detect(env)
-    comroot = "$INKSCAPE $INKSCAPEFLAGS --file $SOURCE "
-    kwargs = dict(# Generic command line flags
-            INKSCAPEFLAGS=SCons.Util.CLVar("--without-gui"),
 
-            # Generic command
-            INKSCAPECOM="$INKSCAPE --file $SOURCE $INKSCAPEFLAGS $TARGET",
-            INKSCAPECOMSTR=""
-            )
+    env.SetDefault(
+        INKSCAPECOM="$INKSCAPE $INKSCAPEFLAGS --export-filename=$TARGET $SOURCE",
+        INKSCAPEFLAGS="",
+        INKSCAPECOMSTR="",
+    )
+    env["BUILDERS"]["Inkscape"] = _builder
 
-    for key, val in _params.items():
-        kwargs[val["flags"]] = ""
-        kwargs[val["comstr"]] = ""
-        kwargs[val["com"]] = " ".join([comroot, "$" + val["flags"],
-                                       val["out"], "$TARGET"])
-
-    env.SetDefault(**kwargs)
-    env["BUILDERS"].update( _builders )
 
 def exists(env):
     return _detect(env)
-
