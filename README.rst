@@ -86,6 +86,7 @@ Changed
 
 -   Migrated development to ``trunk``
 -   Updated to Inkscape 1+ argument syntax
+-   Updated to the SCons preferred syntax of the MIT License
 
 0.0.1_ 2021-08-07
 ^^^^^^^^^^^^^^^^^
