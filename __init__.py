@@ -52,7 +52,9 @@ except ImportError:
 
 import itertools
 import os
+import pathlib
 import platform
+import re
 
 #
 # Preliminary details
@@ -119,9 +121,15 @@ def _detect(env):
 # Emitters
 # ~~~~~~~~
 #
-def _latex_emitter(target, source, env):
+def _emitter(target, source, env):
     """Define a generic emitter for the LaTeX exporting"""
-    target.append(str(target[0]) + "_tex")
+    if re.search("--export-latex", env.get("INKSCAPEFLAGS", "")):
+        target.extend(
+            [str(_) + "_tex" for _ in target
+             if pathlib.Path(str(_)).suffix in (".pdf", ".ps", ".eps")
+             ]
+        )
+
     return target, source
 
 #
