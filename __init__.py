@@ -137,44 +137,10 @@ def _emitter(target, source, env):
 # ~~~~~~~~
 #
 
-# Many of the outputs have the same format with only source and target
-# extensions changed.
-_params = {}
-_sources = ("svg", "pdf", "eps")
-_targets = ("svg", "pdf", "eps", "ps", "png", "emf", "wmf")
-for s, t in itertools.product(_sources, _targets):
-    if s == t:
-        continue
-
-    plain = "plain-" if t == "svg" else ""
-    _params[s + "2" + t] = {"out"       : "--export-" + plain + t,
-                            "src_suffix": s,
-                            "suffix"    : t,
-                            "emitter"   : None}
-
-    if t in ("pdf", "eps", "ps"):
-        _params[s + "2" + t + "_tex"] = {
-                "out"           : "--export-latex --export-" + t,
-                "src_suffix"   : s,
-                "suffix"       : t,
-                "emitter"      : _latex_emitter
-            }
-
-_builders = {
-        "Inkscape" : SCons.Builder.Builder(
-                action=SCons.Action.Action("$INKSCAPECOM",
-                                           "$INKSCAPECOMSTR"),
-                single_source=True)
-    }
-for key, val in _params.items():
-    com = key.upper() + "COM"
-    comstr = com + "STR"
-    flags = key.upper() + "FLAGS"
-    action = SCons.Action.Action("$" + com, "$" + comstr)
-    _params[key].update( dict(com=com, comstr=comstr,
-                              action=action, flags=flags) )
-    _builders[key] = SCons.Builder.Builder(single_source=True,
-                                           **_params[key])
+_builder = SCons.Builder.Builder(
+    action=SCons.Action.Action("$INKSCAPECOM", "$INKSCAPECOMSTR"),
+    emitter=_emitter
+)
 
 #
 # SCons functions
