@@ -45,7 +45,10 @@ import SCons.Action
 import SCons.Builder
 import SCons.Errors
 import SCons.Util
-import SCons.Warnings
+try:
+    from SCons.Warnings import SConsWarning as SConsWarning
+except ImportError:
+    from SCons.Warnings import Warning as SConsWarning
 
 import itertools
 
@@ -55,7 +58,7 @@ import itertools
 #
 # Begin by defining local errors
 
-class ToolInkscapeWarning(SCons.Warnings.Warning):
+class ToolInkscapeWarning(SConsWarning):
     pass
 
 class InkscapeNotFound(ToolInkscapeWarning):
