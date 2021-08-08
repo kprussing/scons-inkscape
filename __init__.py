@@ -51,6 +51,8 @@ except ImportError:
     from SCons.Warnings import Warning as SConsWarning
 
 import itertools
+import os
+import platform
 
 #
 # Preliminary details
@@ -85,14 +87,26 @@ def _detect(env):
     if inkscape:
         return inkscape
 
-    # That didn't work so we must be on Windows or Inkscape is not
-    # installed.  As a last resort, we can try “known” installation
-    # locations on Windows.  This assumes proper binary compatibility
-    # and considers the user may be running under CygWin.
-    import os
-    prog = os.path.join("PROGRA~1", "Inkscape", "inkscape.com")
-    for root in ("C:" + os.sep, os.path.join("/cygdrive", "c")):
-        inkscape = env.WhereIs(os.path.join(root, prog))
+    # That didn't work so Inkscape must not be on the PATH.  As a last
+    # resort, we can try to scan "known" installation locations on
+    # Windows and Darwin to see if we can locate the binary.
+    if platform.system() == "Windows":
+        # This assumes proper binary compatibility and considers the
+        # user may be running under CygWin.
+        prog = os.path.join("PROGRA~1", "Inkscape", "inkscape.com")
+        for root in ("C:" + os.sep, os.path.join("/cygdrive", "c")):
+            inkscape = env.WhereIs(os.path.join(root, prog))
+            if inkscape:
+                return inkscape
+
+    elif platform.system() == "Darwin":
+        # macOS could have been installed using their installer.
+        inkscape = env.WhereIs(os.path.join("/Applications",
+                                            "Inkscape.app",
+                                            "Contents",
+                                            "MacOS",
+                                            "inkscape")
+                               )
         if inkscape:
             return inkscape
 
